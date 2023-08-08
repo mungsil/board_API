@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-//@ToString(of = {"id","username"})
+@ToString(of = {"id","username"})
 public class Member {
 
     @Id

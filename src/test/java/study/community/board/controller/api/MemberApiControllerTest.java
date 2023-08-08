@@ -32,4 +32,14 @@ class MemberApiControllerTest {
                 //.andExpect(jsonPath("name").value("myName") //response name 데이터 검증
     }
 
+    @Test
+    public void findMemberById() throws Exception{
+        //given
+
+        //when
+
+        //then
+
+    }
+
 }

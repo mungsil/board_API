@@ -34,8 +34,10 @@ public class InitDB {
 
             Member memberA = Member.createMember("memberA", "kflsd@123", "2222", Grade.C);
             Member memberB = Member.createMember("memberB", "AJLDmm@pspdfj", "1234", Grade.B);
+            Member member3 = Member.createMember("member3", "siuohfua@naver.com", "1111", Grade.C);
             em.persist(memberA);
             em.persist(memberB);
+            em.persist(member3);
 
 
             String titleA = "모바일 프로그래밍 초과 풀렸음?";
@@ -58,6 +60,11 @@ public class InitDB {
             comment2.addMember(memberA);
             comment2.addPost(postB);
             em.persist(comment2);
+
+            Comment comment3 = Comment.createComment("오늘 12시");
+            comment3.addMember(member3);
+            comment3.addPost(postB);
+            em.persist(comment3);
 
 
 

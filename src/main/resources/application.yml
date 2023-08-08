@@ -9,6 +9,7 @@ spring:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect # 추가 해준 부분
     hibernate:
       ddl-auto: create
+      default_batch_fetch_size: 100
     properties:
       hibernate:
         # show_sql: true

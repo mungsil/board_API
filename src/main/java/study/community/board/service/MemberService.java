@@ -2,10 +2,14 @@ package study.community.board.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import study.community.board.controller.dto.MemberDto;
+import study.community.board.domain.Comment;
+import study.community.board.domain.Post;
 import study.community.board.domain.Member;
+import study.community.board.domain.dto.v2.MemberDtoV2;
 import study.community.board.repository.MemberRepository;
 
 import java.util.List;
@@ -31,8 +35,8 @@ public class MemberService {
         return memberRepository.save(member).getId();
     }
 
-    public Member findMember(Long id) {
-        return memberRepository.findById(id).orElse(null);
+    public MemberDtoV2 findMember(Long id) {
+        return memberRepository.findMemberById(id);
     }
 
     public String findUsername(String name) {
@@ -40,17 +44,24 @@ public class MemberService {
         return findName.orElseGet(this::defaultUsername);
     }
 
-    public MemberDto findMemberDto(String name) {
-        MemberDto memberByUsername = memberRepository.findMemberByUsername(name);
-        return memberByUsername;
-    }
+    /*public Page<Member> findAllById(Long id, Pageable pageable) {
+        Page<Member> allById = memberRepository.findAllById(id, pageable);
+        return allById;
+    }*/
 
     private String defaultUsername() {
         return "anonymous";
     }
 
-    /*public List<Member> findAllMember() {
-        return memberRepository.findAll();
-    }*/
+    public Page<Member> findAllMember(Pageable pageable) {
+        return memberRepository.findAll(pageable);
+    }
 
+    public Page<Post> findPostByMemberId(Long id, Pageable pageable) {
+        return memberRepository.findPostsBymemberId(id, pageable);
+    }
+
+    public Page<Comment> findCommentsByMemberID(Long id, Pageable pageable) {
+        return memberRepository.findCommentsByMemberID(id, pageable);
+    }
 }

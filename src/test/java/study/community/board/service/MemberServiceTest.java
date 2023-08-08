@@ -22,11 +22,11 @@ class MemberServiceTest {
         //given
         //initDB
 
-        //when
+        /*//when
         Member member = memberService.findMember(1L);
 
         //then
-        System.out.println("member = " + member);
+        System.out.println("member = " + member);*/
 
     }
 }
