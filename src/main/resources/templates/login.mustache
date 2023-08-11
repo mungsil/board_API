@@ -1,0 +1,34 @@
+{{>layouts/header}}
+<div class="page_container">
+    <div class="login_form_container">
+        <div class="login_form_imgbox">
+            <img src="/images/imag.jpg" alt="img" height="600">
+        </div>
+        <form action="/user/login" method="post">
+            <div class="login_form_box">
+                <div class="login_logo_box">
+                    <img src="/images/logo.png" alt="Logo" width="175">
+                </div>
+                <div class="login_input_box">
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="user_email" placeholder="Email">
+                        <label for="floatingInput">이메일</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="password" class="form-control" id="user_password" placeholder="Password">
+                        <label for="floatingPassword">비밀번호</label>
+                    </div>
+                </div>
+                <div class="login_btn_wrap">
+                    <button type="submit" class="login_btn" id="login_btn">로그인</button>
+                    <hr align="center" style="border: solid 1px gray; width: 300px;">
+                    <button type="button" class="login_btn_img"><img src="/images/login_btn_google.png" width="220"></button>
+                    <button type="button" class="login_btn_img"><img src="/images/login_btn_naver.png" width="220"></button>
+                    <button type="button" class="login_btn_img"><img src="/images/login_btn_kakao.png" width="220"></button>
+                    <span>계정이 없으신가요? <a href='/user/signup'>가입하기</a> </span>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{{>layouts/footer}}

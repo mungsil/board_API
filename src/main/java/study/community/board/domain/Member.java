@@ -1,6 +1,5 @@
 package study.community.board.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +20,7 @@ public class Member {
     @Column(name = "member_id")
     private Long id;
 
+    //unique제약조건 어케 걸었더라
     private String username;
 
     @Column(unique = true,nullable = false)
@@ -30,7 +30,7 @@ public class Member {
     private String userPassword;
 
     @Enumerated(value = EnumType.STRING)
-    private Grade grade;
+    private UserRole userRole;
 
     @OneToMany(mappedBy = "member")
     private List<Post> postList = new ArrayList<>();
@@ -38,14 +38,14 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<Comment> commentList = new ArrayList<>();
 
-    private Member(String username, String userId, String userPassword, Grade grade) {
+    private Member(String username, String userId, String userPassword, UserRole userRole) {
         this.username = username;
         this.userId = userId;
         this.userPassword = userPassword;
-        this.grade = grade;
+        this.userRole = userRole;
     }
 
-    public static Member createMember(String username, String userId, String userPassword, Grade grade) {
-        return new Member(username, userId, userPassword, grade);
+    public static Member createMember(String username, String userId, String userPassword, UserRole userRole) {
+        return new Member(username, userId, userPassword, userRole);
     }
 }

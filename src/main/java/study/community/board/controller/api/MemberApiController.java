@@ -1,18 +1,16 @@
 package study.community.board.controller.api;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import study.community.board.controller.dto.CreateMemberRequest;
+import study.community.board.controller.dto.CreateMemberResponse;
 import study.community.board.domain.Comment;
 import study.community.board.domain.Post;
-import study.community.board.domain.Grade;
-import study.community.board.domain.Member;
 import study.community.board.domain.dto.PostDto;
 import study.community.board.domain.dto.v1.CommentDtoV1;
 import study.community.board.domain.dto.v2.MemberDtoV2;
@@ -59,7 +57,7 @@ public class MemberApiController {
     @GetMapping("/members")
     public List<MemberDtoV2> findMember(@PageableDefault(size = 10, sort = {"username"}, direction = Sort.Direction.DESC) Pageable pageable) {
         List<MemberDtoV2> memberList = memberService.findAllMember(pageable).stream()
-                .map(member -> new MemberDtoV2(member.getUsername(),member.getUserId(),member.getGrade()))
+                .map(member -> new MemberDtoV2(member.getUsername(),member.getUserId(),member.getUserRole()))
                 .collect(Collectors.toList());
         return memberList;
     }
@@ -67,7 +65,7 @@ public class MemberApiController {
     //특정 멤버 조회- 댓글과 게시글은 제외한 정보 반환 - id로
     @GetMapping("members/{id}")
     public MemberDtoV2 findMemberById(@PathVariable(name = "id") Long id) {
-        return memberService.findMember(id);
+        return memberService.findMemberById(id);
     }
 
     //특정 멤버의 게시글 조회
@@ -100,12 +98,18 @@ public class MemberApiController {
     //@Validated는 뭐지?
     @PostMapping("/members")
     public CreateMemberResponse join(@RequestBody @Validated CreateMemberRequest request) {
+        /* 굳이 멤버 객체의 형태로 저장할 필요가 없다. 스프링 데이터 jpa가 제공하는 repo의 save는 save(Entity)이기 때문이다.
+        이거 동작 원리가 어떻게 되는거지? 알아보자. !
+        */
 
-        Member member = Member.createMember(
-                request.getUsername(), request.getUserId(), request.getUserPassword(), Grade.C);
-        memberService.saveMember(member);
+        if( memberService.duplicateIdCheck(request.getUserId()) ==true &&
+                memberService.duplicateNameCheck(request.getUsername()) == true){
+             memberService.createMember(request);
+        }else {
+            return null;
+        }
 
-        return new CreateMemberResponse(member.getId());
+        return new CreateMemberResponse(request.getUserId());
 
     }
 
@@ -114,26 +118,6 @@ public class MemberApiController {
     //로그아웃
 
 
-
-
-
-
-
-    @Getter
-    static class CreateMemberRequest {
-        String userId;
-        String userPassword;
-        String username;
-
-    }
-
-    @Getter
-    static class CreateMemberResponse {
-        Long id;
-        public CreateMemberResponse(Long id) {
-            this.id = id;
-        }
-    }
 
     /*
     //페이징 기능 추가

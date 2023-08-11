@@ -3,6 +3,6 @@ package study.community.board.domain;
 import lombok.Getter;
 
 @Getter
-public enum Grade {
-    A,B,C
+public enum UserRole {
+    USER,ADMIN
 }

@@ -2,10 +2,9 @@ package study.community.board.domain.dto.v1;
 
 
 import lombok.Getter;
-import study.community.board.domain.Grade;
+import study.community.board.domain.UserRole;
 import study.community.board.domain.Member;
 import study.community.board.domain.dto.PostDto;
-import study.community.board.domain.dto.v1.CommentDtoV1;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +15,7 @@ public class MemberDtoV1 {
 
     private String username;
     private String userId;
-    private Grade grade;
+    private UserRole userRole;
     private List<CommentDtoV1> commentDtoList = new ArrayList<>();
     private List<PostDto> postDtoList = new ArrayList<>();
 
@@ -38,7 +37,7 @@ public class MemberDtoV1 {
    public MemberDtoV1(Member member) {
        this.username =member.getUsername();
        this.userId =member.getUserId();
-       this.grade =member.getGrade();
+       this.userRole =member.getUserRole();
        this.commentDtoList = member.getCommentList().stream()
                .map(comment -> new CommentDtoV1(comment))
                .collect(Collectors.toList());

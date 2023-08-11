@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.PathVariable;
 import study.community.board.domain.Comment;
 import study.community.board.domain.Post;
@@ -17,9 +18,13 @@ import java.util.Optional;
 //repo의 기능을 Impl로 따로 구현해주는 경우도 있었음
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
+    boolean existsByUserId(String userId);
+    boolean existsByUsername(String username);
+    Optional<Member> findByUserId(String userId);
+
     Page<Member> findMembersById(Long id, Pageable pageable);
 
-    @Query("select new study.community.board.domain.dto.v2.MemberDtoV2(m.username, m.userId,m.grade) from Member m where m.id = :id")
+    @Query("select new study.community.board.domain.dto.v2.MemberDtoV2(m.username, m.userId,m.userRole) from Member m where m.id = :id")
     MemberDtoV2 findMemberById(@PathVariable(name = "id") Long id);
 
     @Query(value = "select p from Post p join fetch p.member where p.member.id = :id",
@@ -32,4 +37,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Page<Member> findAll(Pageable pageable);
    Optional<String> findByUsername(String name);
+
+
+
 }

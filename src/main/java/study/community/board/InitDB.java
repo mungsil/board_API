@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import study.community.board.domain.Comment;
-import study.community.board.domain.Grade;
+import study.community.board.domain.UserRole;
 import study.community.board.domain.Member;
 import study.community.board.domain.Post;
 
@@ -32,9 +32,9 @@ public class InitDB {
 
         public void dbInit() {
 
-            Member memberA = Member.createMember("memberA", "kflsd@123", "2222", Grade.C);
-            Member memberB = Member.createMember("memberB", "AJLDmm@pspdfj", "1234", Grade.B);
-            Member member3 = Member.createMember("member3", "siuohfua@naver.com", "1111", Grade.C);
+            Member memberA = Member.createMember("memberA", "kflsd@123", "2222", UserRole.USER);
+            Member memberB = Member.createMember("memberB", "AJLDmm@pspdfj", "1234", UserRole.ADMIN);
+            Member member3 = Member.createMember("member3", "siuohfua@naver.com", "1111", UserRole.USER);
             em.persist(memberA);
             em.persist(memberB);
             em.persist(member3);
