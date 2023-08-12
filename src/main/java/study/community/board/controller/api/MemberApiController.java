@@ -14,6 +14,7 @@ import study.community.board.domain.Post;
 import study.community.board.domain.dto.PostDto;
 import study.community.board.domain.dto.v1.CommentDtoV1;
 import study.community.board.domain.dto.v2.MemberDtoV2;
+import study.community.board.service.AuthenticationService;
 import study.community.board.service.MemberService;
 
 import java.util.List;
@@ -50,6 +51,7 @@ import java.util.stream.Collectors;
 public class MemberApiController {
 
     private final MemberService memberService;
+    private final AuthenticationService authenticationService;
 
     // 로그인
 
@@ -94,24 +96,24 @@ public class MemberApiController {
 
 
 
-    //회원 가입
+    /*//회원 가입
     //@Validated는 뭐지?
     @PostMapping("/members")
     public CreateMemberResponse join(@RequestBody @Validated CreateMemberRequest request) {
-        /* 굳이 멤버 객체의 형태로 저장할 필요가 없다. 스프링 데이터 jpa가 제공하는 repo의 save는 save(Entity)이기 때문이다.
+        *//* 굳이 멤버 객체의 형태로 저장할 필요가 없다. 스프링 데이터 jpa가 제공하는 repo의 save는 save(Entity)이기 때문이다.
         이거 동작 원리가 어떻게 되는거지? 알아보자. !
-        */
+        *//*
 
-        if( memberService.duplicateIdCheck(request.getUserId()) ==true &&
-                memberService.duplicateNameCheck(request.getUsername()) == true){
-             memberService.createMember(request);
+        if( authenticationService.duplicateIdCheck(request.getUserId()) ==true &&
+                authenticationService.duplicateNameCheck(request.getUsername()) == true){
+            authenticationService.createMember(request);
         }else {
             return null;
         }
 
         return new CreateMemberResponse(request.getUserId());
 
-    }
+    }*/
 
     //회원 탈퇴
 

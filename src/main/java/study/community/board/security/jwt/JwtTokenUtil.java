@@ -3,8 +3,6 @@ package study.community.board.security.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
-
 import java.util.Date;
 
 public class JwtTokenUtil {
@@ -38,7 +36,7 @@ public class JwtTokenUtil {
     }
 
     // 유효 시간 체크
-    public static boolean extractIsExpire(String token, String key) {
+    public static boolean isExpired(String token, String key) {
         Date expiration = extractClaims(token, key).getExpiration();
         return expiration.before(new Date());
     }

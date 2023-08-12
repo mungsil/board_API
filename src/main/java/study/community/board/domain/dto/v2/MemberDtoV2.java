@@ -8,12 +8,12 @@ public class MemberDtoV2 {
 
     private String username;
     private String userId;
-    private UserRole userRole;
+    private UserRole role;
 
     public MemberDtoV2(String username, String userId, UserRole userRole) {
         this.username = username;
         this.userId = userId;
-        this.userRole = userRole;
+        this.role = userRole;
     }
 
 }

@@ -1,9 +1,11 @@
 package study.community.board.security.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,11 +16,21 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import study.community.board.domain.UserRole;
+import study.community.board.security.jwt.JwtTokenFilter;
+import study.community.board.service.AuthenticationService;
+import study.community.board.service.MemberService;
 
 @Configuration
 @EnableWebSecurity // 필터 체인을 사용하기 위함
+@RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final MemberService memberService;
+    private static String secretKey = "kim-2023-09-01-key";
+
+    //test 용도
     @Bean
     UserDetailsService userDetailsService() {
         PasswordEncoder pwEncoder = getPwEncoder();
@@ -51,7 +63,22 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http.csrf().disable()
+
+        return http
+                .httpBasic().disable()
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                //JwtTokenFilter에서는 사용자의 요청에서 Jwt Token을 추출한 후 해당 Token이 유효한지 체크 => 유효하다면 UsernamePasswordAuthenticationFilter를 통과할 수 있게끔 권한 부여
+                .addFilterBefore(new JwtTokenFilter(memberService, secretKey), UsernamePasswordAuthenticationFilter.class)
+                .authorizeRequests()
+                .antMatchers("/posts").permitAll()
+                //members, posts는 인증(로그인)을 해야 접속이 가능
+                .antMatchers("/members/**", "/posts/**").authenticated()
+                .anyRequest().permitAll()
+                .and().build();
+       /* return http
+                .csrf().disable()
                 //접근 권한을 설정하기 위한 메서드 체인을 시작
                 .authorizeRequests()
                 //admin만 인가
@@ -73,7 +100,7 @@ public class SecurityConfig {
                 //로그인 후 돌아갈 페이지를 설정, 홈 말고 이전에 요청한 페이지로 돌아가도록 설정하기 위하여 false 설정
                 .defaultSuccessUrl("/posts")
                 //.successHandler(savedRequestAwareAuthenticationSuccessHandler()) // 성공 핸들러 설정
-                .and().build();
+                .and().build();*/
     }
 
     @Bean
