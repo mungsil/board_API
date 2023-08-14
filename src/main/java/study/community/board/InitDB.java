@@ -2,6 +2,7 @@ package study.community.board;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import study.community.board.domain.Comment;
@@ -12,6 +13,7 @@ import study.community.board.domain.Post;
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class InitDB {
@@ -65,8 +67,7 @@ public class InitDB {
             comment3.addMember(member3);
             comment3.addPost(postB);
             em.persist(comment3);
-
-
+            System.out.println("memberA_userId = "+memberA.getUserId());
 
         }
 

@@ -40,16 +40,20 @@ public class AuthenticationService {
     public String Login(LoginMemberRequest request) {
         //id 비교
         String requestUserId = request.getUserId();
+        System.out.println("요청 id = "+ request.getUserId());
         Member findmember = memberRepository.findByUserId(requestUserId).orElse(null);
 
         if (findmember == null) {
+            System.out.println("error id자체가 없음");
             return null;
         }
 
         //pw 비교
-        String userPassword = findmember.getUserPassword();
         String requestPw = request.getUserPassword();
+        String userPassword = findmember.getUserPassword();
+
         if(!userPassword.equals(requestPw)){
+            System.out.println("error 비밀번호 틀림");
             return null;
         }
 

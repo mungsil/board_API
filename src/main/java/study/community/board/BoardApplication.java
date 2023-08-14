@@ -1,11 +1,9 @@
 package study.community.board;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import study.community.board.repository.MemberRepository;
-import study.community.board.service.MemberService;
 
 
 /**

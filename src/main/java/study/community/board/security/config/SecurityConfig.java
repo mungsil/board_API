@@ -73,6 +73,7 @@ public class SecurityConfig {
                 .addFilterBefore(new JwtTokenFilter(memberService, secretKey), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/posts").permitAll()
+                .antMatchers("/members").hasAnyRole("ADMIN")
                 //members, posts는 인증(로그인)을 해야 접속이 가능
                 .antMatchers("/members/**", "/posts/**").authenticated()
                 .anyRequest().permitAll()

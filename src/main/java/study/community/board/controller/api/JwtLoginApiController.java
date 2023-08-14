@@ -41,7 +41,7 @@ public class JwtLoginApiController {
     }
 
     @PostMapping("/login")
-    public String login(LoginMemberRequest request) {
+    public String login(@RequestBody LoginMemberRequest request) {
         String login = authenticationService.Login(request);
         if (login == null) {
             return "일치하는 계정이 없습니다. 아이디 또는 비밀번호를 확인하여주세요.";
