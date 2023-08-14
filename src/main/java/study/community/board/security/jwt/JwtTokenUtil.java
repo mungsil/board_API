@@ -30,6 +30,10 @@ public class JwtTokenUtil {
         return extractClaims(token, key).get("userId").toString();
     }
 
+    /*public static String extractUsername(String token, String key) {
+        return extractClaims(token, key).get("username").toString();
+    }*/
+
     // 토큰에서 만료 시간 추출
     public static Date extractExpireTime(String token, String key){
         return extractClaims(token, key).getExpiration();
@@ -40,5 +44,7 @@ public class JwtTokenUtil {
         Date expiration = extractClaims(token, key).getExpiration();
         return expiration.before(new Date());
     }
+
+
 
 }

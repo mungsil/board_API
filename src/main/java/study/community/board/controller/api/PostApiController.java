@@ -3,16 +3,22 @@ package study.community.board.controller.api;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.security.SecurityUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import study.community.board.domain.Member;
 import study.community.board.domain.Post;
 import study.community.board.domain.dto.v2.CommentDtoV2;
 import study.community.board.domain.dto.PostDto;
+import study.community.board.domain.dto.v2.MemberDtoV2;
+import study.community.board.security.jwt.JwtTokenUtil;
 import study.community.board.service.CommentService;
+import study.community.board.service.MemberService;
 import study.community.board.service.PostService;
 
 import java.time.LocalDateTime;
@@ -31,6 +37,7 @@ public class PostApiController {
 
     private final PostService postService;
     private final CommentService commentService;
+    private final MemberService memberService;
 
     //전체 글 조회: 페이징 적용
     @GetMapping("/posts")
@@ -42,12 +49,7 @@ public class PostApiController {
                 .collect(Collectors.toList());
         return postDtoList;
     }
-
-
-    //특정
-
-
-    //특정 게시글 조회 - 해당 게시글에 달린 댓글을 페이징 처리와 함께 반환해야함
+    //게시글 조회 - 해당 게시글에 달린 댓글을 페이징 처리와 함께 반환
     @GetMapping("/posts/{id}")
     public PostDtoWithComments findPostWithComment(@PathVariable(name = "id") Long id) {
         PostDtoWithComments postDto = postService.findById(id).map(post -> new PostDtoWithComments(post)).orElse(null);
@@ -60,13 +62,26 @@ public class PostApiController {
     //== 검색 기능 ==// post를 작성한 username으로 post를 조회
 
 
-
     // 글쓰기 *요청 이름 맞춰줘야하나? posts로.
-    /*@PostMapping("/posts")
-    public CreatePostResponse writePosts(@RequestBody @Validated CreatePostRequest postRequest) {
-        Post.createPost(postRequest.getTitle(), postRequest.getContent(), 0, postRequest.getUsername());
+    @PostMapping("/posts")
+    public CreatePostResponse writePosts(@RequestBody @Validated CreatePostRequest postRequest, @RequestHeader(name = "Authorization") String token) {
 
-    }*/
+        System.out.println("============================1");
+        String sival = token.split(" ")[1];
+        System.out.println(getUserIdFromToken(sival));
+        System.out.println("===========================");
+        Member member = memberService.findMemberByUserId(getUserIdFromToken(sival));
+        Post post = Post.createPost(postRequest.getTitle(), postRequest.getContent(), 0, member);
+
+        return new CreatePostResponse(post.getMember().getUserId(),post.getContent(),post.getTitle());
+
+    }
+
+    private String getUserIdFromToken(String token) {
+        String secretKey = "kim-2023-09-01-key";
+        System.out.println("============================1");
+        return JwtTokenUtil.extractUserId(token, secretKey);
+    }
 
     // 게시글 수정
 
@@ -77,7 +92,6 @@ public class PostApiController {
     @Getter
     @AllArgsConstructor
     private static class CreatePostRequest {
-        String username;
         String title;
         String content;
     }
@@ -86,7 +100,9 @@ public class PostApiController {
     @Getter
     @AllArgsConstructor
     private static class CreatePostResponse {
-        String username;
+        String createdBy;
+        String content;
+        String title;
     }
 
     @Getter

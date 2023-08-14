@@ -42,5 +42,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
    Optional<String> findByUsername(String name);
 
 
-
+    Member findMemberByUsername(String username);
 }

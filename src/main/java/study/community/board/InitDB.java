@@ -46,10 +46,8 @@ public class InitDB {
             String titleB = "수강신청 언제임";
             String content = "ㅈㄱㄴ";
 
-            Post postA = Post.createPost(titleA,content,1);
-            Post postB = Post.createPost(titleB,content,1);
-            postA.addMember(memberA);
-            postB.addMember(memberB);
+            Post postA = Post.createPost(titleA,content,1, memberA);
+            Post postB = Post.createPost(titleB,content,1, memberB);
             em.persist(postA);
             em.persist(postB);
 

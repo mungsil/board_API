@@ -1,16 +1,10 @@
 package study.community.board.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,15 +31,17 @@ public class Post extends BaseTimeEntity {
     @OneToMany(mappedBy = "post")
     private List<Comment> commentList = new ArrayList<>();
 
-    private Post( String title, String content, int recommendedNum) {
+    private Post( String title, String content, int recommendedNum, Member member) {
 
         this.title = title;
         this.content = content;
         this.recommendedNum = recommendedNum;
+        addMember(member);
     }
 
-    public static Post createPost(String title, String content, int recommendedNum) {
-        return new Post(title, content, recommendedNum);
+    public static Post createPost(String title, String content, int recommendedNum, Member member) {
+        return new Post(title, content, recommendedNum, member);
+
     }
 
 

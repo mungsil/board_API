@@ -7,9 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
-import study.community.board.domain.Member;
 import study.community.board.domain.dto.v2.MemberDtoV2;
-import study.community.board.service.AuthenticationService;
 import study.community.board.service.MemberService;
 
 import javax.servlet.FilterChain;
@@ -54,7 +52,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String loginId = JwtTokenUtil.extractUserId(token, secretKey);
 
         // 추출한 loginId로 User 찾아오기
-        MemberDtoV2 loginUser = memberService.findMemberByUserId(loginId);
+        MemberDtoV2 loginUser = memberService.findMemberDtoByUserId(loginId);
 
         // loginUser 정보로 UsernamePasswordAuthenticationToken 발급
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

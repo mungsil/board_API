@@ -4,11 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import study.community.board.controller.dto.CreateMemberRequest;
-import study.community.board.controller.dto.LoginMemberRequest;
 import study.community.board.domain.Comment;
 import study.community.board.domain.Post;
 import study.community.board.domain.Member;
@@ -45,7 +42,7 @@ public class MemberService {
     }
 
     //String userId로 member 조회  *인증, 인가 시 사용한다.
-    public MemberDtoV2 findMemberByUserId(String userId) {
+    public MemberDtoV2 findMemberDtoByUserId(String userId) {
         //로그인이 안되어있는 경우
         if (userId == null) {return null;}
 
@@ -56,11 +53,22 @@ public class MemberService {
         return new MemberDtoV2(findMember.getUsername(), findMember.getUserId(), findMember.getUserRole());
     }
 
+    public Member findMemberByUserId(String userId) {
+        if (userId == null) {
+            return null;
+        }
+        return memberRepository.findByUserId(userId).orElse(null);
+    }
+
 
     // 닉네임으로 member 조회
     public String findUsername(String name) {
         Optional<String> findName = memberRepository.findByUsername(name);
         return findName.orElseGet(this::defaultUsername);
+    }
+
+    public Member findMemberByName(String name) {
+        return memberRepository.findMemberByUsername(name);
     }
 
     /*public Page<Member> findAllById(Long id, Pageable pageable) {
