@@ -30,31 +30,6 @@ public class SecurityConfig {
     private final MemberService memberService;
     private static String secretKey = "kim-2023-09-01-key";
 
-    //test 용도
-    @Bean
-    UserDetailsService userDetailsService() {
-        PasswordEncoder pwEncoder = getPwEncoder();
-
-        UserDetails memberA = User.builder()
-                .username("memberA")
-                .password(pwEncoder.encode("1111"))
-                .roles("USER")
-                .build();
-
-        UserDetails memberB = User.builder()
-                .username("memberB")
-                .password(pwEncoder.encode("2222"))
-                .roles("USER")
-                .build();
-
-        // 비밀번호 로깅은 프로덕션 애플리케이션에서는 절대로 사용하지 말 것
-        System.out.println(" >>>memberA의 비밀번호 : " + memberA.getPassword());
-        System.out.println(" >>>memberB의 비밀번호 : " + memberB.getPassword());
-
-        // UserDetailsManager와 UserDetailsPasswordService 인터페이스를 구현
-        return new InMemoryUserDetailsManager(memberA, memberB);
-
-    }
 
     @Bean
     public PasswordEncoder getPwEncoder() {
@@ -104,11 +79,11 @@ public class SecurityConfig {
                 .and().build();*/
     }
 
-    @Bean
+    /*@Bean
     public AuthenticationSuccessHandler savedRequestAwareAuthenticationSuccessHandler() {
         SavedRequestAwareAuthenticationSuccessHandler successHandler =
                 new SavedRequestAwareAuthenticationSuccessHandler();
         successHandler.setUseReferer(true); // Referer를 사용하여 돌아갈 페이지 설정
         return successHandler;
-    }
+    }*/
 }

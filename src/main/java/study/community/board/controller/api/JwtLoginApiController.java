@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import study.community.board.controller.dto.CreateMemberRequest;
 import study.community.board.controller.dto.LoginMemberRequest;
+import study.community.board.domain.Member;
 import study.community.board.security.config.SecurityConfig;
 import study.community.board.security.jwt.JwtTokenUtil;
 import study.community.board.service.AuthenticationService;
 
 @RestController
 @RequiredArgsConstructor
-//@RequestMapping("/login")
 public class JwtLoginApiController {
 
     private final AuthenticationService authenticationService;
@@ -31,7 +31,7 @@ public class JwtLoginApiController {
             return "닉네임(사용자명)이 중복됩니다.";
         }
         // id,pw 동일성 체크
-        if (!request.getUserPassword().equals(request.getPasswordCheck())) {
+        if (!request.getPassword().equals(request.getPasswordCheck())) {
             return "비밀번호가 일치하지 않습니다.";
         }
 
@@ -42,8 +42,8 @@ public class JwtLoginApiController {
 
     @PostMapping("/login")
     public String login(@RequestBody LoginMemberRequest request) {
-        String login = authenticationService.Login(request);
-        if (login == null) {
+        Member loginMember = authenticationService.Login(request);
+        if (loginMember == null) {
             return "일치하는 계정이 없습니다. 아이디 또는 비밀번호를 확인하여주세요.";
         }
 
@@ -52,7 +52,7 @@ public class JwtLoginApiController {
         long expireTimeMs = 1000 * 60 * 60; // 유효시간 60분 설정
         String secretKey = "kim-2023-09-01-key";
 
-        String token = JwtTokenUtil.createToken(request.getUserId(), secretKey, expireTimeMs);
+        String token = JwtTokenUtil.createToken(request.getUserId(),loginMember.getUserRole(), secretKey, expireTimeMs);
         return token;
     }
 

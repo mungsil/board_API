@@ -28,10 +28,12 @@ public class Post extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
     private List<Comment> commentList = new ArrayList<>();
 
-    private Post( String title, String content, int recommendedNum, Member member) {
+    private boolean changeEnable;
+
+    private Post(String title, String content, int recommendedNum, Member member) {
 
         this.title = title;
         this.content = content;
@@ -44,6 +46,15 @@ public class Post extends BaseTimeEntity {
 
     }
 
+    public Post updatePost(String title, String content) {
+        if (!title.isEmpty()) {
+            this.title = title;
+        }
+        if(!content.isEmpty()){
+            this.content = content;
+        }
+        return this;
+    }
 
     //== 연관 관계 편의 메소드 ==//
     public void addMember(Member member) {
@@ -51,5 +62,8 @@ public class Post extends BaseTimeEntity {
         member.getPostList().add(this);
     }
 
-
+    public boolean setChangeEnable(boolean changeEnable) {
+        this.changeEnable = changeEnable;
+        return this.changeEnable;
+    }
 }

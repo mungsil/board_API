@@ -1,15 +1,20 @@
 package study.community.board.controller.api;
 
-import lombok.RequiredArgsConstructor;
+import lombok.*;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import study.community.board.controller.dto.CreateMemberRequest;
 import study.community.board.controller.dto.CreateMemberResponse;
 import study.community.board.domain.Comment;
+import study.community.board.domain.Member;
 import study.community.board.domain.Post;
 import study.community.board.domain.dto.PostDto;
 import study.community.board.domain.dto.v1.CommentDtoV1;
@@ -51,24 +56,22 @@ import java.util.stream.Collectors;
 public class MemberApiController {
 
     private final MemberService memberService;
-    private final AuthenticationService authenticationService;
-
-    // 로그인
 
     //멤버 전체 조회
-    @GetMapping("/members")
+    @GetMapping("/members/list")
     public List<MemberDtoV2> findMember(@PageableDefault(size = 10, sort = {"username"}, direction = Sort.Direction.DESC) Pageable pageable) {
         List<MemberDtoV2> memberList = memberService.findAllMember(pageable).stream()
-                .map(member -> new MemberDtoV2(member.getUsername(),member.getUserId(),member.getUserRole()))
+                .map(member -> new MemberDtoV2(member.getUsername(), member.getUserId(), member.getUserRole()))
                 .collect(Collectors.toList());
         return memberList;
     }
 
-    //특정 멤버 조회- 댓글과 게시글은 제외한 정보 반환 - id로
+    //멤버 조회 V1- 댓글과 게시글은 제외한 정보 반환 - id로
     @GetMapping("members/{id}")
     public MemberDtoV2 findMemberById(@PathVariable(name = "id") Long id) {
         return memberService.findMemberById(id);
     }
+
 
     //특정 멤버의 게시글 조회
     @GetMapping("/members/{id}/posts")
@@ -81,6 +84,7 @@ public class MemberApiController {
                 .collect(Collectors.toList());
         return collect;
     }
+    //@GetMapping("/members/{id}/posts/{id}")도 필요하겠군요?
 
 
     // 특정 멤버의 댓글 조회
@@ -92,30 +96,72 @@ public class MemberApiController {
         return collect;
     }
 
-    //특정 멤버 조회 - 멤버로 게시글을 조회하는 건데
-
-
-
-    /*//회원 가입
-    //@Validated는 뭐지?
-    @PostMapping("/members")
-    public CreateMemberResponse join(@RequestBody @Validated CreateMemberRequest request) {
-        *//* 굳이 멤버 객체의 형태로 저장할 필요가 없다. 스프링 데이터 jpa가 제공하는 repo의 save는 save(Entity)이기 때문이다.
-        이거 동작 원리가 어떻게 되는거지? 알아보자. !
-        *//*
-
-        if( authenticationService.duplicateIdCheck(request.getUserId()) ==true &&
-                authenticationService.duplicateNameCheck(request.getUsername()) == true){
-            authenticationService.createMember(request);
-        }else {
-            return null;
+    //회원 정보 수정
+    @PostMapping("/members/{id}")
+    public Result changeMyInfo(
+            @PathVariable(name = "id") Long id,@RequestBody @Validated changeInfoRequest request, Authentication authentication) throws ResponseStatusException {
+        try {
+            if (!(id == memberService.findMemberByUserId((String) authentication.getPrincipal()).getId())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 계정의 수정 권한이 없습니다.");
+            }
+            Member updatedMember = memberService.updateInfo(request.getUsername(), request.getPassword(), id);
+            return new Result(new ChangeResponse(updatedMember.getUsername(), updatedMember.getPassword()));
+        } catch (ResponseStatusException e) {
+            throw e;
         }
 
-        return new CreateMemberResponse(request.getUserId());
+    }
 
-    }*/
+    @Getter
+    @NoArgsConstructor
+    private static class ChangeResponse {
+        String username;
+        String password;
+        public ChangeResponse(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
+    }
+
+
 
     //회원 탈퇴
+    @DeleteMapping("/members/{id}")
+    public String deleteMember(@PathVariable(name = "id") Long id, Authentication authentication) {
+        try {
+            Long principalID = memberService.findMemberByUserId((String) authentication.getPrincipal()).getId();
+            if (!(id == principalID)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 권한에 접근할 수 없습니다.");
+            }
+            memberService.deleteMember(id);
+            return "탈퇴되었습니다.";
+        } catch (ResponseStatusException e) {
+            return e.getMessage();
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    private static class Result<T> {
+        private T data;
+    }
+
+    /*
+    @NoArgsConstructor 해줬는데도 아래 오류가 뜨네욤 걍 static 선언해줌 근데 왜 그래야하는 건데?
+    com.fasterxml.jackson.databind.exc.InvalidDefinitionException: Cannot construct instance of `study.community.board.controller.api.MemberApiController$changeInfoRequest`: non-static inner classes like this can only by instantiated using default, no-argument constructor
+     */
+    @Getter
+    @NoArgsConstructor
+    private static class changeInfoRequest {
+        String username;
+        String password;
+        public changeInfoRequest(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
+    }
+
 
     //로그아웃
 

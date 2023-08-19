@@ -32,12 +32,21 @@ public class Comment extends BaseTimeEntity{
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private Comment( String content) {
+    private Comment(Post post, String content, Member member) {
         this.content = content;
+        addPost(post);
+        addMember(member);
     }
 
-    public static Comment createComment(String content) {
-        return new Comment(content);
+    public static Comment createComment(Post post, String content, Member member) {
+        return new Comment(post, content, member);
+    }
+
+    public Comment updateComment(String content) {
+        if (!this.content.equals(content)) {
+            this.content = content;
+        }
+        return this;
     }
 
     //== 연관관계 메서드 ==//

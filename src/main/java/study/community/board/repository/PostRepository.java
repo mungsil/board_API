@@ -9,7 +9,8 @@ import study.community.board.domain.Post;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-
     @Query(value = "select p from Post p join fetch p.member", countQuery = "select count(p) from Post p")
     Page<Post> findAllPost(Pageable pageable);
+
+
 }

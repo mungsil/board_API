@@ -46,26 +46,19 @@ public class InitDB {
             String titleB = "수강신청 언제임";
             String content = "ㅈㄱㄴ";
 
-            Post postA = Post.createPost(titleA,content,1, memberA);
-            Post postB = Post.createPost(titleB,content,1, memberB);
+            Post postA = Post.createPost(titleA,content,0, memberA);
+            Post postB = Post.createPost(titleB,content,0, memberB);
             em.persist(postA);
             em.persist(postB);
 
-            Comment comment1 = Comment.createComment("ㅈㄱㄴ가 뭐임?");
-            comment1.addMember(memberB);
-            comment1.addPost(postA);
+            Comment comment1 = Comment.createComment(postA,"ㅈㄱㄴ가 뭐임?",memberB);
             em.persist(comment1);
 
-            Comment comment2 = Comment.createComment("핑프냐? 검색하셈;");
-            comment2.addMember(memberA);
-            comment2.addPost(postB);
+            Comment comment2 = Comment.createComment(postB,"핑프냐? 검색하셈;",memberA);
             em.persist(comment2);
 
-            Comment comment3 = Comment.createComment("오늘 12시");
-            comment3.addMember(member3);
-            comment3.addPost(postB);
+            Comment comment3 = Comment.createComment(postB, "오늘 12시", member3);
             em.persist(comment3);
-            System.out.println("memberA_userId = "+memberA.getUserId());
 
         }
 

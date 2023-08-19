@@ -10,5 +10,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class LoginMemberRequest {
     String userId;
-    String userPassword;
+    String password;
 }

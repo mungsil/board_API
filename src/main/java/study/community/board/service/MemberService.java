@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import study.community.board.domain.Comment;
 import study.community.board.domain.Post;
 import study.community.board.domain.Member;
@@ -21,6 +23,9 @@ import java.util.Optional;
  * 4. 페이징을 위한 메서드가 memberService에 필요할까? 어차피 다 쿼리로 하는거 아닌가?
  */
 
+/*
+findById service 계층에서 error throw까지 완료해주기
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -60,6 +65,10 @@ public class MemberService {
         return memberRepository.findByUserId(userId).orElse(null);
     }
 
+    public Member findMemberByIdV2(Long id) {
+        return memberRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 계정이 존재하지 않습니다."));
+    }
+
 
     // 닉네임으로 member 조회
     public String findUsername(String name) {
@@ -97,5 +106,15 @@ public class MemberService {
     // memberId로 Member의 Comment를 찾아서 반환
     public Page<Comment> findCommentsByMemberID(Long id, Pageable pageable) {
         return memberRepository.findCommentsByMemberID(id, pageable);
+    }
+
+    @Transactional
+    public Member updateInfo(String username,String password,Long id) {
+       return findMemberByIdV2(id).updateMember(username, password);
+    }
+
+    @Transactional
+    public void deleteMember(Long id) {
+        memberRepository.delete(findMemberByIdV2(id));
     }
 }

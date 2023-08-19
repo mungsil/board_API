@@ -1,26 +1,28 @@
 package study.community.board.controller.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.catalina.security.SecurityUtil;
+import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import study.community.board.domain.Member;
 import study.community.board.domain.Post;
 import study.community.board.domain.dto.v2.CommentDtoV2;
 import study.community.board.domain.dto.PostDto;
-import study.community.board.domain.dto.v2.MemberDtoV2;
-import study.community.board.security.jwt.JwtTokenUtil;
+import study.community.board.exception.PostNotFoundException;
+import study.community.board.service.AuthenticationService;
 import study.community.board.service.CommentService;
 import study.community.board.service.MemberService;
 import study.community.board.service.PostService;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,22 +40,29 @@ public class PostApiController {
     private final PostService postService;
     private final CommentService commentService;
     private final MemberService memberService;
+    private final AuthenticationService authenticationService;
 
     //전체 글 조회: 페이징 적용
-    @GetMapping("/posts")
-    public List<PostDto> findPosts(@PageableDefault(size = 10, sort = {"createdDate"}, direction = Sort.Direction.DESC) Pageable pageable) {
+    @GetMapping("/posts/list")
+    public Result findPosts(@PageableDefault(size = 10, sort = {"createdDate"}, direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<Post> allPost = postService.findAllPost(pageable);
         List<PostDto> postDtoList = allPost.stream()
                 .map(post -> new PostDto(post))
                 .collect(Collectors.toList());
-        return postDtoList;
+        return new Result(postDtoList);
     }
     //게시글 조회 - 해당 게시글에 달린 댓글을 페이징 처리와 함께 반환
     @GetMapping("/posts/{id}")
-    public PostDtoWithComments findPostWithComment(@PathVariable(name = "id") Long id) {
-        PostDtoWithComments postDto = postService.findById(id).map(post -> new PostDtoWithComments(post)).orElse(null);
-        return postDto;
+    public Result findPostWithComment(@PathVariable(name = "id") Long id) {
+        try {
+            Post post = postService.findById(id);
+            PostDtoWithComments postDtoWithComments = new PostDtoWithComments(post);
+            return new Result(postDtoWithComments);
+        } catch (PostNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 게시글이 존재하지 않습니다.", e);
+        }
+
     }
 
     //== 검색 기능 ==// post 제목 또는 내용으로 조회
@@ -61,34 +70,61 @@ public class PostApiController {
 
     //== 검색 기능 ==// post를 작성한 username으로 post를 조회
 
+    @PostMapping("/post")
+    public Result writePosts(@RequestBody @Validated CreatePostRequest postRequest, Authentication authentication) {
 
-    // 글쓰기 *요청 이름 맞춰줘야하나? posts로.
-    @PostMapping("/posts")
-    public CreatePostResponse writePosts(@RequestBody @Validated CreatePostRequest postRequest, @RequestHeader(name = "Authorization") String token) {
+        Member member = memberService.findMemberByUserId((String) authentication.getPrincipal());
 
-        System.out.println("============================1");
-        String sival = token.split(" ")[1];
-        System.out.println(getUserIdFromToken(sival));
-        System.out.println("===========================");
-        Member member = memberService.findMemberByUserId(getUserIdFromToken(sival));
         Post post = Post.createPost(postRequest.getTitle(), postRequest.getContent(), 0, member);
+        postService.savePost(post);
+        PostResponse postResponse = new PostResponse(post.getTitle(), post.getContent(), post.getMember().getUsername());
 
-        return new CreatePostResponse(post.getMember().getUserId(),post.getContent(),post.getTitle());
-
+        return new Result(postResponse);
     }
 
-    private String getUserIdFromToken(String token) {
-        String secretKey = "kim-2023-09-01-key";
-        System.out.println("============================1");
-        return JwtTokenUtil.extractUserId(token, secretKey);
-    }
 
     // 게시글 수정
+    @PostMapping("posts/{id}")
+    public Result changePost(@RequestBody @Validated ChangeRequest changeRequest,@PathVariable(name = "id")Long id,Authentication authentication) throws AccessDeniedException {
 
+        // *수정 필* 오류 잡아주기
+        try {
+            Post post = postService.findById(id);
 
+            if (!post.getMember().getUserId().equals(authentication.getPrincipal())) {
+                throw new AccessDeniedException("해당 게시글을 수정할 권한이 없습니다.");}
 
-    // 게시글 삭제
+            Post modifiedPost = postService.modifyPost(post, changeRequest.getTitle(), changeRequest.getContent());
 
+            PostResponse postResponse = new PostResponse(modifiedPost.getTitle(), modifiedPost.getContent(),modifiedPost.getMember().getUsername());
+            return new Result(postResponse);
+
+        } catch (PostNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 게시글이 존재하지 않습니다.", e);
+        }
+
+    }
+
+    // *수정 필* 게시글 삭제: 게시글을 삭제하면 댓글도 자동 삭제 -> 댓글은 남아있게 하고 시푼데...
+    @DeleteMapping("/posts/{id}")
+    public ResponseEntity<String> deletePost(@PathVariable(name = "id")Long id) {
+
+        try{
+            postService.deletePost(id);
+        } catch (PostNotFoundException e){
+            return ResponseEntity.notFound().build(); //404 not found
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
+        }
+        return ResponseEntity.ok("게시글이 삭제되었습니다");
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    private static class Result<T> {
+        private T data;
+    }
     @Getter
     @AllArgsConstructor
     private static class CreatePostRequest {
@@ -99,10 +135,10 @@ public class PostApiController {
 
     @Getter
     @AllArgsConstructor
-    private static class CreatePostResponse {
-        String createdBy;
-        String content;
+    private static class PostResponse {
         String title;
+        String content;
+        String createdBy;
     }
 
     @Getter
@@ -127,5 +163,10 @@ public class PostApiController {
         }
 
     }
-
+    @Getter
+    @AllArgsConstructor
+    private static class ChangeRequest {
+        String title;
+        String content;
+    }
 }

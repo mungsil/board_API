@@ -8,6 +8,9 @@ import study.community.board.controller.dto.CreateMemberRequest;
 import study.community.board.controller.dto.LoginMemberRequest;
 import study.community.board.domain.Member;
 import study.community.board.repository.MemberRepository;
+import study.community.board.security.jwt.JwtTokenUtil;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,32 +35,46 @@ public class AuthenticationService {
     @Transactional
     public String createMember(CreateMemberRequest request) {
         //비밀번호를 암호화하여 저장
-        Member member = request.toEntity(passwordEncoder.encode(request.getUserPassword()));
+        Member member = request.toEntity(passwordEncoder.encode(request.getPassword()));
         return memberRepository.save(member).getUserId();
     }
 
     //로그인
-    public String Login(LoginMemberRequest request) {
+    public Member Login(LoginMemberRequest request) {
         //id 비교
         String requestUserId = request.getUserId();
         System.out.println("요청 id = "+ request.getUserId());
         Member findmember = memberRepository.findByUserId(requestUserId).orElse(null);
 
         if (findmember == null) {
-            System.out.println("error id자체가 없음");
+            System.out.println("error! id자체가 없음");
             return null;
         }
 
         //pw 비교
-        String requestPw = request.getUserPassword();
-        String userPassword = findmember.getUserPassword();
+        String requestPw = request.getPassword();
+        String userPassword = findmember.getPassword();
+        System.out.println(
+                requestPw+"  -  "+userPassword
+        );
 
         if(!userPassword.equals(requestPw)){
-            System.out.println("error 비밀번호 틀림");
+            System.out.println("error! 비밀번호 틀림");
             return null;
         }
 
-        return findmember.getUsername();
+        return findmember;
+    }
+
+    public Optional<Member> getMemberFromToken(String token) {
+        Optional<Member> member = memberRepository.findByUserId(getUserIdFromToken(token));
+        return member;
+    }
+
+    private String getUserIdFromToken(String token) {
+        String splitedToken = token.split(" ")[1];
+        String secretKey = "kim-2023-09-01-key";
+        return JwtTokenUtil.extractUserId(splitedToken, secretKey);
     }
 
 
