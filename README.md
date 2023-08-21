@@ -14,4 +14,5 @@ restfulAPI 게시판
 - secret Key를 yml파일에 추가해주기
 - 리프레시 토큰 발급
 - test 작성
+- api 문서화 및 배포
   
