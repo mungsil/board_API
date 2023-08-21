@@ -5,7 +5,7 @@ restfulAPI 게시판
 - Java 11
 - Spring Boot 2.7.14
 - JPA
-- JWT + 스프링 시큐리티(로그인, 회원가입 기능)
+- JWT + 스프링 시큐리티(로그인, 회원가입 기능) :https://chb2005.tistory.com/178 코드 참고
 - MySQL
 
 ## 리팩토링 시 해결해야하는 과제들
