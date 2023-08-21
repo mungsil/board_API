@@ -3,12 +3,10 @@ package study.community.board.controller.api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import study.community.board.controller.dto.CreateMemberRequest;
 import study.community.board.controller.dto.LoginMemberRequest;
 import study.community.board.domain.Member;
-import study.community.board.security.config.SecurityConfig;
 import study.community.board.security.jwt.JwtTokenUtil;
 import study.community.board.service.AuthenticationService;
 
@@ -55,6 +53,4 @@ public class JwtLoginApiController {
         String token = JwtTokenUtil.createToken(request.getUserId(),loginMember.getUserRole(), secretKey, expireTimeMs);
         return token;
     }
-
-
 }

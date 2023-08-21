@@ -62,7 +62,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         // 추출한 loginId로 User 찾아오기
         MemberDtoV2 loginUser = memberService.findMemberDtoByUserId(loginId);
 
-        System.out.println("log:jwtFilter까지 왔음");
         // loginUser 정보로 UsernamePasswordAuthenticationToken 발급
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(

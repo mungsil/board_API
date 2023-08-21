@@ -28,11 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * post를 쓰는 건 member 로그인이 구현되어야 해결되는 문제이다. comment도 마찬가지네요
- * 어떤 식으로 프론트엔드와 로그인 정보를 주고 받는지 안다면 먼저 작성해도 되는데...
- */
-
 @RestController
 @RequiredArgsConstructor
 public class PostApiController {
@@ -40,7 +35,7 @@ public class PostApiController {
     private final PostService postService;
     private final CommentService commentService;
     private final MemberService memberService;
-    private final AuthenticationService authenticationService;
+
 
     //전체 글 조회: 페이징 적용
     @GetMapping("/posts/list")
@@ -55,20 +50,12 @@ public class PostApiController {
     //게시글 조회 - 해당 게시글에 달린 댓글을 페이징 처리와 함께 반환
     @GetMapping("/posts/{id}")
     public Result findPostWithComment(@PathVariable(name = "id") Long id) {
-        try {
-            Post post = postService.findById(id);
-            PostDtoWithComments postDtoWithComments = new PostDtoWithComments(post);
-            return new Result(postDtoWithComments);
-        } catch (PostNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 게시글이 존재하지 않습니다.", e);
-        }
 
+        Post post = postService.findById(id);
+        PostDtoWithComments postDtoWithComments = new PostDtoWithComments(post);
+        return new Result(postDtoWithComments);
     }
 
-    //== 검색 기능 ==// post 제목 또는 내용으로 조회
-    //@GetMapping("/search/posts") @RequestParam사용
-
-    //== 검색 기능 ==// post를 작성한 username으로 post를 조회
 
     @PostMapping("/post")
     public Result writePosts(@RequestBody @Validated CreatePostRequest postRequest, Authentication authentication) {
@@ -87,25 +74,17 @@ public class PostApiController {
     @PostMapping("posts/{id}")
     public Result changePost(@RequestBody @Validated ChangeRequest changeRequest,@PathVariable(name = "id")Long id,Authentication authentication) throws AccessDeniedException {
 
-        // *수정 필* 오류 잡아주기
-        try {
-            Post post = postService.findById(id);
+        Post post = postService.findById(id);
 
-            if (!post.getMember().getUserId().equals(authentication.getPrincipal())) {
-                throw new AccessDeniedException("해당 게시글을 수정할 권한이 없습니다.");}
-
-            Post modifiedPost = postService.modifyPost(post, changeRequest.getTitle(), changeRequest.getContent());
-
-            PostResponse postResponse = new PostResponse(modifiedPost.getTitle(), modifiedPost.getContent(),modifiedPost.getMember().getUsername());
-            return new Result(postResponse);
-
-        } catch (PostNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 게시글이 존재하지 않습니다.", e);
-        }
+        if (!post.getMember().getUserId().equals(authentication.getPrincipal())) {
+            throw new AccessDeniedException("해당 게시글을 수정할 권한이 없습니다.");}
+         Post modifiedPost = postService.modifyPost(post, changeRequest.getTitle(), changeRequest.getContent());
+         PostResponse postResponse = new PostResponse(modifiedPost.getTitle(), modifiedPost.getContent(),modifiedPost.getMember().getUsername());
+         return new Result(postResponse);
 
     }
 
-    // *수정 필* 게시글 삭제: 게시글을 삭제하면 댓글도 자동 삭제 -> 댓글은 남아있게 하고 시푼데...
+    // *수정 필* 게시글 삭제: 게시글을 삭제하면 댓글도 자동 삭제 -> 댓글은 남아있도록 수정
     @DeleteMapping("/posts/{id}")
     public ResponseEntity<String> deletePost(@PathVariable(name = "id")Long id) {
 
@@ -131,8 +110,12 @@ public class PostApiController {
         String title;
         String content;
     }
-
-
+    @Getter
+    @AllArgsConstructor
+    private static class ChangeRequest {
+        String title;
+        String content;
+    }
     @Getter
     @AllArgsConstructor
     private static class PostResponse {
@@ -148,25 +131,18 @@ public class PostApiController {
         String username;
         LocalDateTime lastModifiedDate;
         List<CommentDtoV2> commentDtoList = new ArrayList<>();
-
-
         public PostDtoWithComments(Post post) {
             this.title = post.getTitle();
             this.content = post.getContent();
             this.username = post.getMember().getUsername();
             this.lastModifiedDate = post.getLastModifiedDate();
             PageRequest pageRequest = PageRequest.of(0, 2, Sort.by(Sort.Direction.DESC, "lastModifiedDate"));
-            this.commentDtoList = commentService.findCommentByPost(post.getId(), pageRequest)
+            this.commentDtoList = commentService.findCommentByPostId(post.getId(), pageRequest)
                     .stream()
                     .map(comment -> new CommentDtoV2(comment))
                     .collect(Collectors.toList());
         }
 
     }
-    @Getter
-    @AllArgsConstructor
-    private static class ChangeRequest {
-        String title;
-        String content;
-    }
+
 }

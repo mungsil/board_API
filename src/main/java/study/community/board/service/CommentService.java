@@ -8,10 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import study.community.board.domain.Comment;
 import study.community.board.domain.Member;
 import study.community.board.domain.Post;
-import study.community.board.exception.CommnetNotFoundException;
+import study.community.board.exception.CommentNotFoundException;
 import study.community.board.repository.CommentRepository;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,13 +18,6 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
 
-    public Page<Comment> findAllComment(Pageable pageable) {
-        return commentRepository.findAllComment(pageable);
-    }
-
-    public Page<Comment> findCommentByPost(Long id, Pageable pageable) {
-        return commentRepository.findCommentsByPost(id, pageable);
-    }
 
     @Transactional
     public Comment saveComment(Post post, String content, Member member) {
@@ -35,23 +26,30 @@ public class CommentService {
         return save;
     }
 
-    @Transactional
-    public Comment updateComment(Long commentId, String content) {
-        Comment comment = findCommentById(commentId).updateComment(content);
+    public Comment findById(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(()-> new CommentNotFoundException("해당 댓글이 존재하지않습니다."));
         return comment;
     }
+    public Page<Comment> findAllComment(Pageable pageable) {
+        return commentRepository.findAllComment(pageable);
+    }
 
-    public Comment findCommentById(Long commentId) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(()-> new CommnetNotFoundException("해당 댓글이 존재하지않습니다."));
+    //comment가 없는 경우도 고려
+    public Page<Comment> findCommentByPostId(Long id, Pageable pageable) {
+        return commentRepository.findCommentsByPost(id, pageable);
+    }
+
+    @Transactional
+    public Comment updateComment(Long commentId, String content) {
+        Comment comment = findById(commentId).updateComment(content);
         return comment;
     }
 
     @Transactional
     public void delete(Long commentId) {
-        Comment comment = commentRepository.findById(commentId).orElse(null);
-        System.out.println(comment);
+        Comment comment = findById(commentId);
         commentRepository.delete(comment);
-
     }
 
 }

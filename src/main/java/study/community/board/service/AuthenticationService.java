@@ -31,7 +31,7 @@ public class AuthenticationService {
         return memberRepository.existsByUsername(username);
     }
 
-    //회원가입 *중복체크-> 컨트롤러
+    //회원가입 *중복체크는-> 컨트롤러
     @Transactional
     public String createMember(CreateMemberRequest request) {
         //비밀번호를 암호화하여 저장
@@ -47,25 +47,21 @@ public class AuthenticationService {
         Member findmember = memberRepository.findByUserId(requestUserId).orElse(null);
 
         if (findmember == null) {
-            System.out.println("error! id자체가 없음");
             return null;
         }
 
         //pw 비교
         String requestPw = request.getPassword();
         String userPassword = findmember.getPassword();
-        System.out.println(
-                requestPw+"  -  "+userPassword
-        );
 
         if(!userPassword.equals(requestPw)){
-            System.out.println("error! 비밀번호 틀림");
             return null;
         }
 
         return findmember;
     }
 
+/*
     public Optional<Member> getMemberFromToken(String token) {
         Optional<Member> member = memberRepository.findByUserId(getUserIdFromToken(token));
         return member;
@@ -76,6 +72,7 @@ public class AuthenticationService {
         String secretKey = "kim-2023-09-01-key";
         return JwtTokenUtil.extractUserId(splitedToken, secretKey);
     }
+*/
 
 
 

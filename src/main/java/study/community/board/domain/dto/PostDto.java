@@ -12,8 +12,6 @@ public class PostDto {
     String content;
     String username;
     LocalDateTime lastModifiedDate;
-
-
     public PostDto(Post post) {
         this.title = post.getTitle();
         this.content = post.getContent();

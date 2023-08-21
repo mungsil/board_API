@@ -15,17 +15,6 @@ import study.community.board.domain.dto.v2.MemberDtoV2;
 import study.community.board.repository.MemberRepository;
 
 import java.util.Optional;
-
-/**
- * 1.로그인(join)기능은 일단 saveMember로 간단하게 대체
- * 2. optional 대해서 더 알아보기
- * 3. findName.orElseGet(this::defaultUsername);
- * 4. 페이징을 위한 메서드가 memberService에 필요할까? 어차피 다 쿼리로 하는거 아닌가?
- */
-
-/*
-findById service 계층에서 error throw까지 완료해주기
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -35,58 +24,30 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     //Long id로 member 조회  *인증, 인가 시 사용한다.
-    public MemberDtoV2 findMemberById(Long id) {
-        //로그인이 안되어있는 경우
-        if (id == null) {return null;}
+    public Member findMemberById(Long id) {
+        if (id == null) {throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"아이디를 입력해주세요");}
 
-        MemberDtoV2 findMember = memberRepository.findMemberById(id);
-        if (findMember==null) {
-            return null;
-        }
-        return findMember;
+        return memberRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 계정이 존재하지 않습니다."));
+
     }
 
     //String userId로 member 조회  *인증, 인가 시 사용한다.
     public MemberDtoV2 findMemberDtoByUserId(String userId) {
-        //로그인이 안되어있는 경우
-        if (userId == null) {return null;}
-
-        Member findMember = memberRepository.findByUserId(userId).orElse(null);
-        if (findMember==null) {
-            return null;
-        }
+        if (userId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);}
+        Member findMember = memberRepository
+                .findByUserId(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         return new MemberDtoV2(findMember.getUsername(), findMember.getUserId(), findMember.getUserRole());
     }
 
     public Member findMemberByUserId(String userId) {
         if (userId == null) {
-            return null;
-        }
-        return memberRepository.findByUserId(userId).orElse(null);
-    }
-
-    public Member findMemberByIdV2(Long id) {
-        return memberRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 계정이 존재하지 않습니다."));
-    }
-
-
-    // 닉네임으로 member 조회
-    public String findUsername(String name) {
-        Optional<String> findName = memberRepository.findByUsername(name);
-        return findName.orElseGet(this::defaultUsername);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);}
+        return memberRepository.findByUserId(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     public Member findMemberByName(String name) {
         return memberRepository.findMemberByUsername(name);
-    }
-
-    /*public Page<Member> findAllById(Long id, Pageable pageable) {
-        Page<Member> allById = memberRepository.findAllById(id, pageable);
-        return allById;
-    }*/
-
-    private String defaultUsername() {
-        return "anonymous";
     }
 
     // 전체 멤버 조회
@@ -98,7 +59,7 @@ public class MemberService {
     public Page<Post> findPostByMemberId(Long id, Pageable pageable) {
         Page<Post> postsBymemberId = memberRepository.findPostsBymemberId(id, pageable);
         if (postsBymemberId.isEmpty()) {
-            return null;
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"작성된 글이 없습니다.");
         }
         return postsBymemberId;
     }
@@ -110,11 +71,11 @@ public class MemberService {
 
     @Transactional
     public Member updateInfo(String username,String password,Long id) {
-       return findMemberByIdV2(id).updateMember(username, password);
+       return findMemberById(id).updateMember(username, password);
     }
 
     @Transactional
     public void deleteMember(Long id) {
-        memberRepository.delete(findMemberByIdV2(id));
+        memberRepository.delete(findMemberById(id));
     }
 }

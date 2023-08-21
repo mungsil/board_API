@@ -62,8 +62,4 @@ public class Post extends BaseTimeEntity {
         member.getPostList().add(this);
     }
 
-    public boolean setChangeEnable(boolean changeEnable) {
-        this.changeEnable = changeEnable;
-        return this.changeEnable;
-    }
 }

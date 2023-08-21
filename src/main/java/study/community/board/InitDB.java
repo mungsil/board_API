@@ -61,8 +61,5 @@ public class InitDB {
             em.persist(comment3);
 
         }
-
-
-
     }
 }

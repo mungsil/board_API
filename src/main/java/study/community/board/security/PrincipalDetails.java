@@ -9,8 +9,6 @@ import study.community.board.domain.Member;
 import java.util.Collection;
 import java.util.List;
 
-//post /login 요청을 시큐리티가 가로채서 로그인을 진행해준다. 따라서 직접 해당 요청을 만들 필요가 없다.
-//로그인에 성공하면 Security Session을 생성해주는데, 이것은 Security Session(Authentication(UserDetails)) 의 구조로 되어있다.
 //PrincipalDetails에서 UserDetails를 정의한다.
 
 public class PrincipalDetails implements UserDetails {

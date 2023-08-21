@@ -25,11 +25,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m from Member m where m.userId = :userId")
     Optional<Member> findByUserId(@Param("userId") String userId);
 
-    Page<Member> findMembersById(Long id, Pageable pageable);
-
-    @Query("select new study.community.board.domain.dto.v2.MemberDtoV2(m.username, m.userId,m.userRole) from Member m where m.id = :id")
-    MemberDtoV2 findMemberById(@Param("id") Long id);
-
     @Query(value = "select p from Post p join fetch p.member where p.member.id = :id",
             countQuery = "select count(p) from Post p")
     Page<Post> findPostsBymemberId(@Param("id") Long memberId, Pageable pageable);
