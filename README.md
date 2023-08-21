@@ -12,4 +12,6 @@ restfulAPI 게시판
 - 예외 처리
 - 조회 시 성능 최적화(추후 Query DSL로 해결 예정)
 - secret Key를 yml파일에 추가해주기
+- 리프레시 토큰 발급
 - test 작성
+  
