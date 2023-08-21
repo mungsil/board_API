@@ -1,7 +1,9 @@
 # board_API
 restfulAPI 게시판
 
-## 사용 기술
+## 기술 스택
+- Java 11
+- Spring Boot 2.7.14
 - JPA
 - JWT + 스프링 시큐리티(로그인, 회원가입 기능)
 - MySQL
