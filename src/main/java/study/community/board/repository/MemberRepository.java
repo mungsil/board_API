@@ -14,9 +14,7 @@ import study.community.board.domain.dto.v2.MemberDtoV2;
 
 import java.util.Optional;
 
-//이름이 똑같으면 어케 되는거지? 걍 파리미터도 똑같으면? 반환타입만 달라도 구분 되겠죠?
-//repo의 기능을 Impl로 따로 구현해주는 경우도 있었음
-//@Param과 @Pathvariable의 차이
+
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
     boolean existsByUserId(String userId);
