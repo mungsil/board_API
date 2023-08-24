@@ -43,8 +43,7 @@ public class CommentApiController {
     }
 
     // 댓글 생성
-    //@Vaild와 @Validation의 차이?
-    @PostMapping("/comment")
+    @PostMapping("/comments")
     public Result<CreateCommentResponse> createComment(@RequestBody @Validated CreateCommentRequest request
             , Authentication authentication) {
         Post post = postService.findById(request.getPostId());
@@ -56,7 +55,7 @@ public class CommentApiController {
     }
 
     // 댓글 수정
-    @PostMapping("/comments/{id}")
+    @PatchMapping("/comments/{id}")
     public Result changeComment(@PathVariable(name = "id")Long id
             , @RequestBody @Validated ChangeCommentRequest request, Authentication authentication) throws AccessDeniedException{
 
@@ -96,7 +95,7 @@ public class CommentApiController {
 
     @Getter
     @AllArgsConstructor
-    @NoArgsConstructor
+    @NoArgsConstructor // 생성자의 인자가 하나인 경우의 역직렬화: 인자가 없는 기본 생성자가 필요하다.
     private static class ChangeCommentRequest {
         String content;
     }

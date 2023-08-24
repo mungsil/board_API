@@ -34,7 +34,7 @@ public class MemberApiController {
     private final MemberService memberService;
 
     //멤버 전체 조회
-    @GetMapping("/members/list")
+    @GetMapping("/members")
     public Result findMember(
             @PageableDefault(size = 10, sort = {"username"}, direction = Sort.Direction.DESC) Pageable pageable) {
         List<MemberDtoV2> memberList = memberService.findAllMember(pageable).stream()
@@ -79,7 +79,7 @@ public class MemberApiController {
     }
 
     //회원 정보 수정
-    @PostMapping("/members/{id}")
+    @PatchMapping("/members/{id}")
     public Result changeMember(
             @PathVariable(name = "id") Long id, @RequestBody @Validated changeMemberInfoRequest request, Authentication authentication) throws ResponseStatusException {
 

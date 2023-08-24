@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 @Getter
 public class BaseTimeEntity {
     @CreatedDate
-    @Column(updatable = false)
+    @Column(updatable = false) //최초 저장 후 수정 불가
     private LocalDateTime createdDate;
 
     @LastModifiedDate

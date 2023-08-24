@@ -38,7 +38,7 @@ public class PostApiController {
 
 
     //전체 글 조회: 페이징 적용
-    @GetMapping("/posts/list")
+    @GetMapping("/posts")
     public Result findPosts(@PageableDefault(size = 10, sort = {"createdDate"}, direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<Post> allPost = postService.findAllPost(pageable);
@@ -56,8 +56,8 @@ public class PostApiController {
         return new Result(postDtoWithComments);
     }
 
-
-    @PostMapping("/post")
+    //게시글 작성
+    @PostMapping("/posts")
     public Result writePosts(@RequestBody @Validated CreatePostRequest postRequest, Authentication authentication) {
 
         Member member = memberService.findMemberByUserId((String) authentication.getPrincipal());
@@ -71,7 +71,7 @@ public class PostApiController {
 
 
     // 게시글 수정
-    @PostMapping("posts/{id}")
+    @PatchMapping("posts/{id}")
     public Result changePost(@RequestBody @Validated ChangeRequest changeRequest,@PathVariable(name = "id")Long id,Authentication authentication) throws AccessDeniedException {
 
         Post post = postService.findById(id);

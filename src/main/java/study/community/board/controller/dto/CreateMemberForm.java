@@ -3,8 +3,6 @@ package study.community.board.controller.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import study.community.board.domain.Member;
 import study.community.board.domain.UserRole;
 
@@ -12,7 +10,7 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @AllArgsConstructor
-public class CreateMemberRequest { //JoinMemberRequest
+public class CreateMemberForm { //JoinMemberRequest
 
     @NotBlank(message = "id는 필수 입력값입니다")
     String userId;

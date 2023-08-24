@@ -4,13 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import study.community.board.controller.dto.CreateMemberRequest;
-import study.community.board.controller.dto.LoginMemberRequest;
+import study.community.board.controller.dto.CreateMemberForm;
+import study.community.board.controller.dto.LoginMemberForm;
 import study.community.board.domain.Member;
 import study.community.board.repository.MemberRepository;
-import study.community.board.security.jwt.JwtTokenUtil;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,14 +30,14 @@ public class AuthenticationService {
 
     //회원가입 *중복체크는-> 컨트롤러
     @Transactional
-    public String createMember(CreateMemberRequest request) {
+    public String createMember(CreateMemberForm request) {
         //비밀번호를 암호화하여 저장
         Member member = request.toEntity(passwordEncoder.encode(request.getPassword()));
         return memberRepository.save(member).getUserId();
     }
 
     //로그인
-    public Member Login(LoginMemberRequest request) {
+    public Member Login(LoginMemberForm request) {
         //id 비교
         String requestUserId = request.getUserId();
         System.out.println("요청 id = "+ request.getUserId());
