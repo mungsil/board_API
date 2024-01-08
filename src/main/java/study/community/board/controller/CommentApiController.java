@@ -1,4 +1,4 @@
-package study.community.board.controller.api;
+package study.community.board.controller;
 
 import lombok.*;
 import org.springframework.data.domain.Page;
@@ -10,17 +10,18 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import study.community.board.apiPayload.ApiResponse;
 import study.community.board.domain.Comment;
 import study.community.board.domain.Member;
 import study.community.board.domain.Post;
-import study.community.board.domain.dto.v1.CommentDtoV1;
+import study.community.board.dto.CommentRequest;
+import study.community.board.dto.CommentResponse;
+import study.community.board.dto.MemberResponse;
 import study.community.board.exception.CommentNotFoundException;
 import study.community.board.service.CommentService;
 import study.community.board.service.MemberService;
 import study.community.board.service.PostService;
-
 import java.nio.file.AccessDeniedException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,30 +35,30 @@ public class CommentApiController {
 
     //전체 댓글 조회
     @GetMapping("/comments")
-    public Result findComments(
+    public ApiResponse findComments(
             @PageableDefault(size = 10, sort = {"createdDate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<Comment> allComment = commentService.findAllComment(pageable);
-        List<CommentDtoV1> commentList
-                = allComment.stream().map(comment -> new CommentDtoV1(comment)).collect(Collectors.toList());
-        return new Result(commentList);
+        List<MemberResponse.findCommentResultDTO> commentList
+                = allComment.stream().map(comment -> new MemberResponse.findCommentResultDTO(comment)).collect(Collectors.toList());
+        return ApiResponse.onSuccess(commentList);
     }
 
     // 댓글 생성
     @PostMapping("/comments")
-    public Result<CreateCommentResponse> createComment(@RequestBody @Validated CreateCommentRequest request
+    public ApiResponse createComment(@RequestBody @Validated CommentRequest.CreateDTO request
             , Authentication authentication) {
         Post post = postService.findById(request.getPostId());
         Member loggedInMember = memberService.findMemberByUserId((String) authentication.getPrincipal());
         Comment comment = commentService.saveComment(post, request.getContent(), loggedInMember );
-        CreateCommentResponse commentResponse
-                = new CreateCommentResponse(comment.getId(), comment.getContent(), comment.getMember().getUsername(), comment.getLastModifiedDate());
-        return new Result(commentResponse);
+        CommentResponse.CreateResultDTO commentResponse
+                = new CommentResponse.CreateResultDTO(comment.getId(), comment.getContent(), comment.getMember().getUsername(), comment.getLastModifiedDate());
+        return ApiResponse.onSuccess(commentResponse);
     }
 
     // 댓글 수정
     @PatchMapping("/comments/{id}")
-    public Result changeComment(@PathVariable(name = "id")Long id
-            , @RequestBody @Validated ChangeCommentRequest request, Authentication authentication) throws AccessDeniedException{
+    public ApiResponse changeComment(@PathVariable(name = "id")Long id
+            , @RequestBody @Validated CommentRequest.ChangeDTO request, Authentication authentication) throws AccessDeniedException{
 
         //댓글id로 찾아온 댓쓴이와 수정 하려고 하는 자(loggedInMember)가 같아야함
         try {
@@ -68,8 +69,8 @@ public class CommentApiController {
                 throw new AccessDeniedException("해당 댓글을 수정할 권한이 없습니다.");
             }
             Comment comment = commentService.updateComment(id, request.getContent());
-            ChangeCommentResponse response = new ChangeCommentResponse(comment.getContent());
-            return new Result(response);
+            CommentRequest.ChangeDTO response = new CommentRequest.ChangeDTO(comment.getContent());
+            return ApiResponse.onSuccess(response);
 
         }catch (CommentNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않습니다.");
@@ -87,37 +88,5 @@ public class CommentApiController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않습니다.");
         }
     }
-    @Data
-    @AllArgsConstructor
-    public static class Result<T> {
-        private T data;
-    }
 
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor // 생성자의 인자가 하나인 경우의 역직렬화: 인자가 없는 기본 생성자가 필요하다.
-    private static class ChangeCommentRequest {
-        String content;
-    }
-    @Getter
-    @AllArgsConstructor
-    private static class ChangeCommentResponse {
-        String content;
-    }
-
-    @AllArgsConstructor
-    @Getter
-    private static class CreateCommentRequest {
-        Long postId;
-        String content;
-    }
-
-    @Getter
-    @AllArgsConstructor
-    private static class CreateCommentResponse {
-        Long commentId;
-        String content;
-        String createdBy;
-        LocalDateTime lastModifiedDate;
-    }
 }
