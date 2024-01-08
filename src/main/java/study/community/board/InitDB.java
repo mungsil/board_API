@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import study.community.board.apiPayload.code.ErrorStatus;
 import study.community.board.domain.Comment;
 import study.community.board.domain.UserRole;
 import study.community.board.domain.Member;
@@ -34,9 +35,9 @@ public class InitDB {
 
         public void dbInit() {
 
-            Member memberA = Member.createMember("memberA", "kflsd@123", "2222", UserRole.USER);
-            Member memberB = Member.createMember("memberB", "AJLDmm@pspdfj", "1234", UserRole.ADMIN);
-            Member member3 = Member.createMember("member3", "siuohfua@naver.com", "1111", UserRole.USER);
+            Member memberA = Member.createMember("memberA", "2222", "2222", UserRole.ROLE_USER);
+            Member memberB = Member.createMember("memberB", "AJLDmm@pspdfj", "1234", UserRole.ROLE_ADMIN);
+            Member member3 = Member.createMember("member3", "siuohfua@naver.com", "1111", UserRole.ROLE_USER);
             em.persist(memberA);
             em.persist(memberB);
             em.persist(member3);
@@ -59,7 +60,7 @@ public class InitDB {
 
             Comment comment3 = Comment.createComment(postB, "오늘 12시", member3);
             em.persist(comment3);
-
+            ErrorStatus.MEMBER_BAD_REQUEST.getErrorReason();
         }
     }
 }

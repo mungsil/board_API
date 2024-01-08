@@ -5,12 +5,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.web.bind.annotation.PathVariable;
 import study.community.board.domain.Comment;
 import study.community.board.domain.Post;
 import study.community.board.domain.Member;
-import study.community.board.domain.dto.v2.MemberDtoV2;
 
 import java.util.Optional;
 

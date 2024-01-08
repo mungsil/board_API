@@ -1,4 +1,4 @@
-package study.community.board.controller.api;
+package study.community.board.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

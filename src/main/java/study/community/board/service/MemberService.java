@@ -11,10 +11,9 @@ import org.springframework.web.server.ResponseStatusException;
 import study.community.board.domain.Comment;
 import study.community.board.domain.Post;
 import study.community.board.domain.Member;
-import study.community.board.domain.dto.v2.MemberDtoV2;
+import study.community.board.dto.MemberResponse;
 import study.community.board.repository.MemberRepository;
 
-import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -32,12 +31,12 @@ public class MemberService {
     }
 
     //String userId로 member 조회  *인증, 인가 시 사용한다.
-    public MemberDtoV2 findMemberDtoByUserId(String userId) {
+    public MemberResponse.findMemberResultDTO findMemberDtoByUserId(String userId) {
         if (userId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);}
         Member findMember = memberRepository
                 .findByUserId(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        return new MemberDtoV2(findMember.getUsername(), findMember.getUserId(), findMember.getUserRole());
+        return new MemberResponse.findMemberResultDTO(findMember.getUsername(), findMember.getUserId(), findMember.getUserRole());
     }
 
     public Member findMemberByUserId(String userId) {
