@@ -3,6 +3,7 @@ package study.community.board.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import study.community.board.domain.Comment;
 
 import java.time.LocalDateTime;
 
@@ -22,5 +23,20 @@ public class CommentResponse {
         String content;
     }
 
+    @Getter
+    public static class findCommentResultDTO {
+        String content;
+        Long postId;
+        String postName;
+        String username;
+        LocalDateTime lastModifiedDate;
+        public findCommentResultDTO(Comment comment) {
+            this.content = comment.getContent();
+            this.postId = comment.getPost().getId();
+            this.postName = comment.getPost().getTitle();
+            this.username = comment.getMember().getUsername();
+            this.lastModifiedDate = comment.getLastModifiedDate();
+        }
+    }
 
 }

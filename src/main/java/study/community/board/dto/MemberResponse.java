@@ -38,34 +38,6 @@ public class MemberResponse {
 
     }
 
-    //json으로의 변환을 위해서는 getter필수
-    @Getter
-    public static class findPostResultDTO {
-        String title;
-        String content;
-        String username;
-        LocalDateTime lastModifiedDate;
-        public findPostResultDTO(Post post) {
-            this.title = post.getTitle();
-            this.content = post.getContent();
-            this.username = post.getMember().getUsername();
-            this.lastModifiedDate = post.getLastModifiedDate();
-        }
-    }
 
-    @Getter
-    public static class findCommentResultDTO {
-        String content;
-        Long postId;
-        String postName;
-        String username;
-        LocalDateTime lastModifiedDate;
-        public findCommentResultDTO(Comment comment) {
-            this.content = comment.getContent();
-            this.postId = comment.getPost().getId();
-            this.postName = comment.getPost().getTitle();
-            this.username = comment.getMember().getUsername();
-            this.lastModifiedDate = comment.getLastModifiedDate();
-        }
-    }
+
 }

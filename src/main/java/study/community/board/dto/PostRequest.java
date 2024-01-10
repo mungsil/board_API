@@ -2,6 +2,9 @@ package study.community.board.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import study.community.board.domain.Post;
+
+import java.time.LocalDateTime;
 
 public class PostRequest {
     @Getter
@@ -16,4 +19,6 @@ public class PostRequest {
         String title;
         String content;
     }
+
+
 }

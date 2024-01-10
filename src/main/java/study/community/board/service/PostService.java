@@ -5,8 +5,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import study.community.board.domain.Member;
 import study.community.board.domain.Post;
+import study.community.board.dto.PostRequest;
 import study.community.board.exception.PostNotFoundException;
+import study.community.board.repository.MemberRepository;
 import study.community.board.repository.PostRepository;
 
 @Service
@@ -15,9 +18,13 @@ import study.community.board.repository.PostRepository;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final MemberRepository memberRepository;
     @Transactional
-    public void savePost(Post post) {
-        postRepository.save(post);
+    public Post savePost(PostRequest.CreatePostDTO request, String userId) {
+        Member member = memberRepository.findByUserId(userId).get();
+        Post post = Post.createPost(request.getTitle(), request.getContent(), 0, member);
+
+        return postRepository.save(post);
     }
 
     public Page<Post> findAllPost(Pageable pageable) {

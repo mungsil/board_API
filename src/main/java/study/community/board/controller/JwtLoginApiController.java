@@ -19,7 +19,7 @@ public class JwtLoginApiController {
     private final AuthenticationService authenticationService;
 
     // 회원가입
-    @PostMapping("/member")
+    @PostMapping("/members")
     public ApiResponse joinMember(@RequestBody JwtRequest.CreateMemberDTO request) {
 
         // userId 중복 체크
