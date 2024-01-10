@@ -8,8 +8,11 @@ import org.springframework.transaction.annotation.Transactional;
 import study.community.board.domain.Comment;
 import study.community.board.domain.Member;
 import study.community.board.domain.Post;
+import study.community.board.dto.CommentRequest;
 import study.community.board.exception.CommentNotFoundException;
 import study.community.board.repository.CommentRepository;
+import study.community.board.repository.MemberRepository;
+import study.community.board.repository.PostRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -17,13 +20,17 @@ import study.community.board.repository.CommentRepository;
 public class CommentService {
 
     private final CommentRepository commentRepository;
+    private final PostRepository postRepository;
+    private final MemberRepository memberRepository;
 
 
     @Transactional
-    public Comment saveComment(Post post, String content, Member member) {
-        Comment comment = Comment.createComment(post, content, member);
-        Comment save = commentRepository.save(comment);
-        return save;
+    public Comment saveComment(CommentRequest.CreateDTO request, String userId) {
+        Post post = postRepository.findById(request.getPostId()).get();
+        Member member = memberRepository.findByUserId(userId).get();
+        Comment comment = Comment.createComment(post, request.getContent(), member);
+
+        return commentRepository.save(comment);
     }
 
     public Comment findById(Long commentId) {

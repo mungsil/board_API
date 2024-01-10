@@ -3,7 +3,6 @@ package study.community.board.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import study.community.board.domain.Comment;
 import study.community.board.domain.Post;
@@ -35,36 +34,48 @@ public class PostResponse {
     }
 
     @Getter
+    public static class FindPostWithCommentResultDTO {
+        String title;
+        String content;
+        String username;
+        LocalDateTime lastModifiedDate;
+        List<CommentResultDTO> commentDtoList = new ArrayList<>();
+        public FindPostWithCommentResultDTO(Post post, List<Comment> commentList) {
+            this.title = post.getTitle();
+            this.content = post.getContent();
+            this.username = post.getMember().getUsername();
+            this.lastModifiedDate = post.getLastModifiedDate();
+            this.commentDtoList = commentList.stream()
+                    .map(comment -> new PostResponse.CommentResultDTO(comment))
+                    .collect(Collectors.toList());
+        }
+    }
+
+    @Getter
+    public static class CommentResultDTO {
+        String content;
+        String username;
+        LocalDateTime lastModifiedDate;
+
+        public CommentResultDTO(Comment comment) {
+            this.content = comment.getContent();
+            this.username = comment.getMember().getUsername();
+            this.lastModifiedDate = comment.getLastModifiedDate();
+        }
+    }
+
+    //json으로의 변환을 위해서는 getter필수
+    @Getter
     public static class findPostResultDTO {
         String title;
         String content;
         String username;
         LocalDateTime lastModifiedDate;
-        List<commentResultDTO> commentDtoList = new ArrayList<>();
-        public findPostResultDTO(Post post, Page<Comment> commentByPostId) {
+        public findPostResultDTO(Post post) {
             this.title = post.getTitle();
             this.content = post.getContent();
             this.username = post.getMember().getUsername();
             this.lastModifiedDate = post.getLastModifiedDate();
-            //PageRequest pageRequest = PageRequest.of(0, 2, Sort.by(Sort.Direction.DESC, "lastModifiedDate"));
-            this.commentDtoList = commentByPostId
-                    .stream()
-                    .map(comment -> new commentResultDTO(comment))
-                    .collect(Collectors.toList());
-        }
-
-    }
-
-    @Getter
-    public static class commentResultDTO {
-        String content;
-        String username;
-        LocalDateTime lastModifiedDate;
-
-        public commentResultDTO(Comment comment) {
-            this.content = comment.getContent();
-            this.username = comment.getMember().getUsername();
-            this.lastModifiedDate = comment.getLastModifiedDate();
         }
     }
 }

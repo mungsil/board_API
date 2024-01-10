@@ -2,6 +2,8 @@ package study.community.board.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -14,6 +16,10 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = "content")
+@Builder
+@AllArgsConstructor
+@DynamicUpdate
+@DynamicInsert
 public class Comment extends BaseTimeEntity{
 
     @Id

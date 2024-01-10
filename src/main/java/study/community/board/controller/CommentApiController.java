@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import study.community.board.apiPayload.ApiResponse;
+import study.community.board.converter.CommentConverter;
 import study.community.board.domain.Comment;
 import study.community.board.domain.Member;
 import study.community.board.domain.Post;
@@ -37,22 +38,19 @@ public class CommentApiController {
     @GetMapping("/comments")
     public ApiResponse findComments(
             @PageableDefault(size = 10, sort = {"createdDate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<Comment> allComment = commentService.findAllComment(pageable);
-        List<MemberResponse.findCommentResultDTO> commentList
-                = allComment.stream().map(comment -> new MemberResponse.findCommentResultDTO(comment)).collect(Collectors.toList());
-        return ApiResponse.onSuccess(commentList);
+        Page<Comment> commentPage = commentService.findAllComment(pageable);
+        return ApiResponse.onSuccess(CommentConverter.toFindCommentResultDTO(commentPage));
     }
 
     // 댓글 생성
     @PostMapping("/comments")
     public ApiResponse createComment(@RequestBody @Validated CommentRequest.CreateDTO request
             , Authentication authentication) {
-        Post post = postService.findById(request.getPostId());
-        Member loggedInMember = memberService.findMemberByUserId((String) authentication.getPrincipal());
-        Comment comment = commentService.saveComment(post, request.getContent(), loggedInMember );
-        CommentResponse.CreateResultDTO commentResponse
-                = new CommentResponse.CreateResultDTO(comment.getId(), comment.getContent(), comment.getMember().getUsername(), comment.getLastModifiedDate());
-        return ApiResponse.onSuccess(commentResponse);
+
+        //authentication.getPrincipal()는 왜 userId를 반환했을까?
+        Comment comment = commentService.saveComment(request, (String) authentication.getPrincipal());
+
+        return ApiResponse.onSuccess(CommentConverter.toCreateResultDTO(comment));
     }
 
     // 댓글 수정
@@ -62,15 +60,16 @@ public class CommentApiController {
 
         //댓글id로 찾아온 댓쓴이와 수정 하려고 하는 자(loggedInMember)가 같아야함
         try {
+            //=== 언체크 커스텀 예외 만든 후 commentService로 이동 ===
             Comment commentById = commentService.findById(id);
             Member loggedInMember = memberService.findMemberByUserId((String) authentication.getPrincipal());
 
             if (!commentById.getMember().equals(loggedInMember)) {
                 throw new AccessDeniedException("해당 댓글을 수정할 권한이 없습니다.");
             }
+            //
             Comment comment = commentService.updateComment(id, request.getContent());
-            CommentRequest.ChangeDTO response = new CommentRequest.ChangeDTO(comment.getContent());
-            return ApiResponse.onSuccess(response);
+            return ApiResponse.onSuccess(CommentConverter.toChangeDTO(comment));
 
         }catch (CommentNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않습니다.");
@@ -80,10 +79,10 @@ public class CommentApiController {
 
     //댓글 삭제
     @DeleteMapping("/comments/{id}")
-    public String deleteComment(@PathVariable(name = "id") Long id) {
+    public ApiResponse deleteComment(@PathVariable(name = "id") Long id) {
         try {
             commentService.delete(id);
-            return "댓글이 삭제되었습니다.";
+            return ApiResponse.onSuccess("댓글이 삭제되었습니다.");
         } catch (CommentNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않습니다.");
         }
