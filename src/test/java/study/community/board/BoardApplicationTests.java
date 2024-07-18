@@ -5,11 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
-import study.community.board.domain.Member;
-import study.community.board.repository.MemberRepository;
-
-import java.util.List;
-import java.util.Optional;
+import study.community.board.domain.member.entity.Member;
+import study.community.board.domain.member.repository.MemberRepository;
 
 @Rollback(value = false)
 @SpringBootTest
