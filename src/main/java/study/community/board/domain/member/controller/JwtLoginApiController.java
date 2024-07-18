@@ -10,6 +10,7 @@ import study.community.board.global.apiPayload.ApiResponse;
 import study.community.board.global.apiPayload.code.ErrorStatus;
 import study.community.board.domain.member.dto.JwtRequest;
 import study.community.board.global.auth.jwt.JwtTokenUtil;
+import org.springframework.beans.factory.annotation.Value;
 
 @RestController
 @RequiredArgsConstructor
@@ -50,11 +51,7 @@ public class JwtLoginApiController {
         }
 
         //로그인 -> Jwt Token 발급
-
-        long expireTimeMs = 1000 * 60 * 60; // 유효시간 60분 설정
-        String secretKey = "kim-2023-09-01-key";
-
-        String token = JwtTokenUtil.createToken(reqeust.getUserId(),loginMember.getUserRole(), secretKey, expireTimeMs);
+        String token = JwtTokenUtil.createToken(reqeust.getUserId(),loginMember.getUserRole());
         return ApiResponse.onSuccess(token);
 
     }

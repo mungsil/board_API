@@ -1,6 +1,7 @@
 package study.community.board.global.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,7 +20,9 @@ import study.community.board.domain.member.service.MemberService;
 public class SecurityConfig {
 
     private final MemberService memberService;
-    private static String secretKey = "kim-2023-09-01-key";
+
+    @Value("${jwt.secret}")
+    private static String secretKey;
 
 
     @Bean
