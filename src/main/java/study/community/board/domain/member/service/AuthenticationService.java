@@ -57,19 +57,4 @@ public class AuthenticationService {
         return findmember;
     }
 
-/*
-    public Optional<Member> getMemberFromToken(String token) {
-        Optional<Member> member = memberRepository.findByUserId(getUserIdFromToken(token));
-        return member;
-    }
-
-    private String getUserIdFromToken(String token) {
-        String splitedToken = token.split(" ")[1];
-        String secretKey = "kim-2023-09-01-key";
-        return JwtTokenUtil.extractUserId(splitedToken, secretKey);
-    }
-*/
-
-
-
 }

@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,16 +19,22 @@ import java.util.Date;
 public class JwtTokenUtil {
 
     static PrincipalDetailsService userDetailsService;
+
+    @Value("${jwt.secret}")
+    private static String SECRET;
+    @Value("${jwt.access-token-expire-time}")
+    private static long ACCESS_TOKEN_EXPIRE_TIME;
+
     // 토큰 발급
-    public static String createToken(String userId, UserRole role, String secretKey, long expireTimeMS) {
+    public static String createToken(String userId, UserRole role) {
         Claims claims = Jwts.claims();
         claims.put("userId", userId);
 
         return Jwts.builder()
                 .setClaims(claims) // public claim
                 .setIssuedAt(new Date(System.currentTimeMillis())) //헤더
-                .setExpiration(new Date(System.currentTimeMillis() + expireTimeMS)) //헤더
-                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRE_TIME)) //헤더
+                .signWith(SignatureAlgorithm.HS256, SECRET)
                 .compact();
     }
 
